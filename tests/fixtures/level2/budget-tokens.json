@@ -1,0 +1,12 @@
+{
+  "description": "memory_context with a low limit returns at most that many results, enabling token-budget-aware retrieval",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "facts/01", "value": "fact one", "scope": "/project/budget-test"}},
+    {"tool": "memory_save", "params": {"key": "facts/02", "value": "fact two", "scope": "/project/budget-test"}},
+    {"tool": "memory_save", "params": {"key": "facts/03", "value": "fact three", "scope": "/project/budget-test"}},
+    {"tool": "memory_save", "params": {"key": "facts/04", "value": "fact four", "scope": "/project/budget-test"}},
+    {"tool": "memory_save", "params": {"key": "facts/05", "value": "fact five", "scope": "/project/budget-test"}}
+  ],
+  "request": {"tool": "memory_context", "params": {"scope": "/project/budget-test", "limit": 2}},
+  "expected": {"results_count_lte": 2}
+}

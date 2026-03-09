@@ -1,0 +1,9 @@
+{
+  "description": "Search returns ranked results with previews",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "commands/test", "value": "bun test"}},
+    {"tool": "memory_save", "params": {"key": "commands/build", "value": "bun run build"}}
+  ],
+  "request": {"tool": "memory_search", "params": {"query": "test"}},
+  "expected": {"results_count_gte": 1, "results[0].key": "commands/test"}
+}

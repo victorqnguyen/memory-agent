@@ -1,0 +1,36 @@
+[package]
+name = "memory-core"
+description = "Core library for persistent AI agent memory"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+homepage.workspace = true
+license = "MIT"
+keywords = ["ai", "memory", "agent", "sqlite", "fts5"]
+categories = ["database", "command-line-utilities"]
+
+[dependencies]
+rusqlite = { version = "0.38", default-features = false }
+rusqlite_migration = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+blake3 = "1"
+thiserror = "2"
+regex-lite = "0.1"
+log = "0.4"
+
+[features]
+default = ["rusqlite/bundled"]
+encryption = ["rusqlite/bundled-sqlcipher"]
+test-utils = []
+
+[dev-dependencies]
+memory-core = { path = ".", features = ["test-utils"] }
+tempfile = "3"
+criterion = { version = "0.5", features = ["html_reports"] }
+tiktoken-rs = "0.5"
+
+[[bench]]
+name = "search_bench"
+harness = false

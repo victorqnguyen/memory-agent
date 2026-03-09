@@ -1,0 +1,10 @@
+{
+  "description": "Memories saved with the same scope are returned together by memory_context, demonstrating implicit relation by scope",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "arch/pattern", "value": "use repository pattern", "scope": "/project/api"}},
+    {"tool": "memory_save", "params": {"key": "arch/db", "value": "postgres with pgvector", "scope": "/project/api"}},
+    {"tool": "memory_save", "params": {"key": "unrelated/key", "value": "something else", "scope": "/project/other"}}
+  ],
+  "request": {"tool": "memory_context", "params": {"scope": "/project/api"}},
+  "expected": {"results_count_gte": 2, "all_results_scope_prefix": "/project/api"}
+}

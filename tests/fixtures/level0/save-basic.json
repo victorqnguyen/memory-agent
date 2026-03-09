@@ -1,0 +1,5 @@
+{
+  "description": "Save a basic explicit memory",
+  "request": {"tool": "memory_save", "params": {"key": "commands/test", "value": "bun test"}},
+  "expected": {"id": "any_integer", "action": "created"}
+}

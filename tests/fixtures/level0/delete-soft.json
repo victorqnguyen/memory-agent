@@ -1,0 +1,12 @@
+{
+  "description": "Deleting a memory soft-deletes it; a subsequent get returns not-found",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "commands/test", "value": "bun test"}}
+  ],
+  "request": {"tool": "memory_delete", "params": {"key": "commands/test"}},
+  "expected": {"deleted": true},
+  "post_check": {
+    "request": {"tool": "memory_get", "params": {"key": "commands/test"}},
+    "expected": {"error_code": -32001}
+  }
+}

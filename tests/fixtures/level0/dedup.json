@@ -1,0 +1,8 @@
+{
+  "description": "Saving the same content twice returns the existing memory without creating a duplicate",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "commands/test", "value": "bun test"}}
+  ],
+  "request": {"tool": "memory_save", "params": {"key": "commands/test", "value": "bun test"}},
+  "expected": {"id": "any_integer", "action": "duplicate"}
+}

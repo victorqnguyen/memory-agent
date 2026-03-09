@@ -1,0 +1,9 @@
+{
+  "description": "Session start returns a session_id; session end accepts that id and records a summary",
+  "request": {"tool": "memory_session_start", "params": {"project": "test-project"}},
+  "expected": {"session_id": "any_integer"},
+  "post_check": {
+    "request": {"tool": "memory_session_end", "params": {"session_id": "$session_id", "summary": "Completed fixture test run"}},
+    "expected": {"ok": true}
+  }
+}

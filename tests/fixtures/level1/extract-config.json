@@ -1,0 +1,10 @@
+{
+  "description": "Config-style memories saved with structured keys are searchable by keyword",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "config/database-url", "value": "postgres://localhost:5432/myapp"}},
+    {"tool": "memory_save", "params": {"key": "config/redis-url", "value": "redis://localhost:6379"}},
+    {"tool": "memory_save", "params": {"key": "config/log-level", "value": "debug"}}
+  ],
+  "request": {"tool": "memory_search", "params": {"query": "postgres database"}},
+  "expected": {"results_count_gte": 1, "results[0].key": "config/database-url"}
+}

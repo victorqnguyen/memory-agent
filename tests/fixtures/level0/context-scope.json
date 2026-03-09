@@ -1,0 +1,9 @@
+{
+  "description": "memory_context returns only memories matching the requested scope",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "build/command", "value": "cargo build", "scope": "/project/alpha"}},
+    {"tool": "memory_save", "params": {"key": "build/command", "value": "npm run build", "scope": "/project/beta"}}
+  ],
+  "request": {"tool": "memory_context", "params": {"scope": "/project/alpha"}},
+  "expected": {"results_count_gte": 1, "all_results_scope_prefix": "/project/alpha"}
+}

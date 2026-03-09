@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = ["crates/memory-core", "crates/memory-agent"]
+
+[workspace.package]
+version = "0.1.15"
+edition = "2024"
+rust-version = "1.85"
+repository = "https://github.com/victorqnguyen/memory-agent"
+homepage = "https://github.com/victorqnguyen/memory-agent"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1

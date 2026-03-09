@@ -1,0 +1,10 @@
+{
+  "description": "Listing all memories under a scope returns a stable count, suitable for a consolidation dry-run check",
+  "setup": [
+    {"tool": "memory_save", "params": {"key": "notes/01", "value": "use async rust", "scope": "/project/consolidate-test"}},
+    {"tool": "memory_save", "params": {"key": "notes/02", "value": "prefer tokio over async-std", "scope": "/project/consolidate-test"}},
+    {"tool": "memory_save", "params": {"key": "notes/03", "value": "tokio::spawn for background tasks", "scope": "/project/consolidate-test"}}
+  ],
+  "request": {"tool": "memory_list", "params": {"scope": "/project/consolidate-test"}},
+  "expected": {"total_gte": 3}
+}

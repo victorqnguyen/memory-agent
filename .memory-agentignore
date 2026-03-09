@@ -1,0 +1,4 @@
+# Files to exclude from memory-agent extract.
+# One filename per line. Lines starting with # are comments.
+# Glob patterns: * matches anything except /, ** not supported.
+.env*

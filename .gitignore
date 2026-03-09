@@ -1,0 +1,69 @@
+/target
+*.swp
+*.swo
+.DS_Store
+SCRATCHPAD.md
+TODO.md
+.worktrees/
+
+# Internal development files (DO NOT COMMIT)
+CLAUDE.md
+.claude/
+.mcp.json
+plan/
+docs/plans/
+
+# Personal testing artifacts
+test_*.sh
+debug*
+scratch*
+*.tmp
+*.bak
+*.orig
+personal/
+temp/
+
+# Research and sensitive documents
+research/
+notes/
+internal/
+confidential/
+private/
+drafts/
+experiments/
+*.draft
+*.private
+*.confidential
+
+# Local configuration and secrets
+config.local.*
+settings.local.*
+*.env
+*.env.local
+.env*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.*
+credentials.*
+
+# IDE and editor files
+.vscode/settings.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS and system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.lnk
+
+# Backup and temporary files
+*~
+*.autosave
+*.backup
+*.swp
+*.swo

@@ -1,0 +1,9 @@
+{
+  "description": "A memory saved with low confidence is retrievable and confidence value is preserved",
+  "request": {"tool": "memory_save", "params": {"key": "hypothesis/perf-issue", "value": "might be N+1 query", "confidence": 0.3}},
+  "expected": {"id": "any_integer", "action": "created"},
+  "post_check": {
+    "request": {"tool": "memory_get", "params": {"key": "hypothesis/perf-issue"}},
+    "expected": {"key": "hypothesis/perf-issue", "confidence_lte": 0.5}
+  }
+}
