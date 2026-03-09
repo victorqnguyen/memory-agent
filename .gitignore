@@ -12,6 +12,7 @@ CLAUDE.md
 .mcp.json
 plan/
 docs/plans/
+docs/ARCHITECTURE-DECISIONS.md
 
 # Personal testing artifacts
 test_*.sh
@@ -54,6 +55,19 @@ credentials.*
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# WASM build artifacts and generated files
+pkg/
+*.wasm
+wasm-pack.log
+.wasm-pack-target/
+node_modules/
+*.js.map
+bindgen-out/
+
+# Rust build artifacts (additional)
+target-wasm/
+wasm32-*/
 
 # OS and system files
 Thumbs.db
