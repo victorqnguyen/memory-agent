@@ -29,7 +29,7 @@ The installer walks you through config, encryption, LLM setup (Ollama or skip), 
 
 - **15 MCP tools** — full CRUD, search, sessions, consolidation, metrics, relationships, skills tracking, token budgeting, maintenance operations
 - **FTS5 full-text search** — weighted BM25 ranking, AND→OR fallback for partial-term recall, adaptive preview, injection-safe query sanitization
-- **Agent-agnostic** — Claude Code, Gemini CLI, Cursor, Codex, or any MCP client
+- **Agent-agnostic** — Claude Code, Opencode, Gemini CLI (not tested for bugs), Cursor (not tested for bugs), Codex (not tested for bugs), or any MCP client
 - **Privacy by default** — secrets (API keys, tokens, passwords, connection strings) are stripped before storage via pattern matching. `<private>` tags are honored. Sensitive files (`.env`, `*.pem`, `*.key`) are never read.
 - **Content deduplication** — blake3 hashing prevents duplicate writes within a configurable window
 - **Procedural learning** — skills system records what worked and what didn't, then retrieves those learnings before the next execution
