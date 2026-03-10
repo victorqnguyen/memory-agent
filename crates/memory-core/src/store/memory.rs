@@ -682,7 +682,7 @@ impl Store {
     pub fn purge_soft_deleted(&self, retention_days: u32) -> Result<u32> {
         let count = self.conn().execute(
             "DELETE FROM memories WHERE deleted_at IS NOT NULL
-             AND julianday('now') - julianday(deleted_at) > ?1",
+             AND julianday('now') - julianday(deleted_at) >= ?1",
             params![retention_days as f64],
         )?;
         Ok(count as u32)
@@ -736,7 +736,7 @@ impl Store {
             .conn()
             .query_row(
                 "SELECT COUNT(*) FROM memories WHERE deleted_at IS NOT NULL
-             AND julianday('now') - julianday(deleted_at) > ?1",
+             AND julianday('now') - julianday(deleted_at) >= ?1",
                 params![self.config.storage.retention_days as f64],
                 |row| row.get::<_, i64>(0),
             )

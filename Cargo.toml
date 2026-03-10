@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/memory-core", "crates/memory-agent"]
+members = ["crates/memory-core", "crates/memory-agent", "crates/memory-wasm"]
 
 [workspace.package]
 version = "0.1.15"
