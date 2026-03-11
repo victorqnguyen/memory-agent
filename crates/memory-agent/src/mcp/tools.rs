@@ -12,6 +12,13 @@ use crate::mcp::types::*;
 use crate::source::extract::scope_from_directory;
 use crate::source::git::GitContext;
 
+/// Call at the top of a deprecated tool's handler to log a warning.
+/// Example: log_deprecated("memory_old_name", "memory_new_name");
+#[allow(dead_code)]
+fn log_deprecated(old_name: &str, new_name: &str) {
+    tracing::warn!(old = old_name, replacement = new_name, "deprecated MCP tool called");
+}
+
 fn serialization_error(e: impl std::fmt::Display) -> McpError {
     McpError::new(
         ErrorCode(-32000),
@@ -41,15 +48,17 @@ fn validate_string_param(value: &str, name: &str, max_len: usize) -> Result<(), 
 pub struct MemoryServer {
     store: AsyncStore,
     llm: LlmTier,
+    max_value_length: usize,
     tool_router: ToolRouter<Self>,
 }
 
 #[tool_router]
 impl MemoryServer {
-    pub fn new(store: AsyncStore, llm: LlmTier) -> Self {
+    pub fn new(store: AsyncStore, llm: LlmTier, max_value_length: usize) -> Self {
         Self {
             store,
             llm,
+            max_value_length,
             tool_router: Self::tool_router(),
         }
     }
@@ -63,6 +72,15 @@ impl MemoryServer {
         params: Parameters<SaveRequest>,
     ) -> Result<CallToolResult, McpError> {
         let req = params.0;
+
+        if req.value.len() > self.max_value_length {
+            return Err(invalid_params(format!(
+                "value too long: {} chars, max {}",
+                req.value.len(),
+                self.max_value_length
+            )));
+        }
+
         let source_type = req
             .source_type
             .map(|s| s.parse::<memory_core::types::SourceType>())
@@ -705,6 +723,15 @@ impl MemoryServer {
             ));
         }
         validate_string_param(&req.skill_name, "skill_name", 256)?;
+
+        if req.outcome.len() > self.max_value_length {
+            return Err(invalid_params(format!(
+                "outcome too long: {} chars, max {}",
+                req.outcome.len(),
+                self.max_value_length
+            )));
+        }
+
         let files = req.files_changed.unwrap_or_default();
 
         let enhanced = crate::llm::enhance_procedural(&self.llm, &req.skill_name, &req.outcome)

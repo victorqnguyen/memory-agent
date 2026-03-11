@@ -38,10 +38,10 @@ async fn run_startup_maintenance(store: AsyncStore) {
     }
 }
 
-pub async fn run_mcp_server(store: AsyncStore, llm: LlmTier) -> anyhow::Result<()> {
+pub async fn run_mcp_server(store: AsyncStore, llm: LlmTier, max_value_length: usize) -> anyhow::Result<()> {
     tracing::info!("Starting MCP server on stdio");
 
-    let server = MemoryServer::new(store.clone(), llm);
+    let server = MemoryServer::new(store.clone(), llm, max_value_length);
 
     // Spawn maintenance in background — does not delay MCP handshake
     tokio::spawn(run_startup_maintenance(store));
