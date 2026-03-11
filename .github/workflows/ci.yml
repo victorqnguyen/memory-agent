@@ -5,19 +5,49 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo clippy -- -D warnings
       - run: cargo test
-      - run: cargo install cargo-audit && cargo audit
+      - name: Audit dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo install cargo-audit && cargo audit
+
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release -p memory-agent
+
+  cross-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
+      - name: Install cross-compilation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> "$GITHUB_ENV"
+      - run: cargo build -p memory-agent --target aarch64-unknown-linux-gnu
 
   wasm:
     runs-on: ubuntu-latest
@@ -27,3 +57,4 @@ jobs:
         with:
           targets: wasm32-wasip1
       - run: cargo build -p memory-core --target wasm32-wasip1
+      - run: cargo build -p memory-wasm --target wasm32-wasip1
