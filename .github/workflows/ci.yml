@@ -56,5 +56,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-wasip1
+      - name: Install WASI SDK
+        run: |
+          wget -q https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-25/wasi-sdk-25.0-x86_64-linux.tar.gz
+          tar xf wasi-sdk-25.0-x86_64-linux.tar.gz -C /opt
+          echo "WASI_SDK_PATH=/opt/wasi-sdk-25.0-x86_64-linux" >> "$GITHUB_ENV"
+          echo "CC_wasm32_wasip1=/opt/wasi-sdk-25.0-x86_64-linux/bin/wasm32-wasip1-clang" >> "$GITHUB_ENV"
       - run: cargo build -p memory-core --target wasm32-wasip1
       - run: cargo build -p memory-wasm --target wasm32-wasip1
