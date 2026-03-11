@@ -22,14 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Set OPENSSL_DIR (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $path = Get-Item "C:\Program Files\OpenSSL-Win64" -ErrorAction SilentlyContinue
-          if (-not $path) { $path = Get-Item "C:\Program Files\OpenSSL" }
-          echo "OPENSSL_DIR=$($path.FullName)" >> $env:GITHUB_ENV
-          echo "OPENSSL_STATIC=1" >> $env:GITHUB_ENV
       - run: cargo clippy -- -D warnings
       - run: cargo test
       - name: Audit dependencies
@@ -54,7 +46,3 @@ jobs:
         with:
           tool: cross
       - run: cross build -p memory-agent --target aarch64-unknown-linux-gnu
-        env:
-          OPENSSL_LIB_DIR: /usr/lib/aarch64-linux-gnu
-          OPENSSL_INCLUDE_DIR: /usr/include
-          PKG_CONFIG_ALLOW_CROSS: "1"

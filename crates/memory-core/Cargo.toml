@@ -22,7 +22,7 @@ log = "0.4"
 
 [features]
 default = ["rusqlite/bundled"]
-encryption = ["rusqlite/bundled-sqlcipher"]
+encryption = ["rusqlite/bundled-sqlcipher-vendored-openssl"]
 test-utils = []
 
 [dev-dependencies]
