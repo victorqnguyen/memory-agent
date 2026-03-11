@@ -1,4 +1,4 @@
 {
-  "version": "0.1.12",
-  "message": null
+  "version": "0.3.0",
+  "message": "MCP boundary hardening, passphrase rotation, file-based error logging"
 }

@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/memory-core", "crates/memory-agent"]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.85"
 repository = "https://github.com/victorqnguyen/memory-agent"

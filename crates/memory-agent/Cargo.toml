@@ -11,7 +11,7 @@ keywords = ["ai", "memory", "agent", "mcp", "sqlite"]
 categories = ["database", "command-line-utilities"]
 
 [dependencies]
-memory-core = { version = "0.2", path = "../memory-core", features = ["encryption"] }
+memory-core = { version = "0.3", path = "../memory-core", features = ["encryption"] }
 rmcp = { version = "0.16", features = ["server", "transport-io"] }
 schemars = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "signal", "net", "sync"] }
@@ -41,5 +41,5 @@ git2 = "0.20"
 getrandom = "0.2"
 
 [dev-dependencies]
-memory-core = { version = "0.2", path = "../memory-core", features = ["test-utils"] }
+memory-core = { version = "0.3", path = "../memory-core", features = ["test-utils"] }
 tempfile = "3"
