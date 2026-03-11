@@ -250,7 +250,7 @@ async fn main() -> anyhow::Result<()> {
 
     match cli {
         Cli::Mcp => {
-            init_tracing();
+            init_tracing(&data_dir);
             let store = open_store(&data_dir, config)?;
             let async_store = AsyncStore::new(store);
             let llm_tier = llm::detect_tier(&llm_config).await;
@@ -1298,13 +1298,33 @@ fn format_tokens(tokens: i64) -> String {
     }
 }
 
-fn init_tracing() {
-    tracing_subscriber::fmt()
+fn init_tracing(data_dir: &std::path::Path) {
+    use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+
+    let stderr_layer = tracing_subscriber::fmt::layer()
         .with_writer(std::io::stderr)
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::from_env("MEMORY_AGENT_LOG_LEVEL")
-        )
-        .init();
+        .with_filter(tracing_subscriber::EnvFilter::from_env("MEMORY_AGENT_LOG_LEVEL"));
+
+    let registry = tracing_subscriber::registry().with(stderr_layer);
+
+    let log_path = data_dir.join("error.log");
+    match std::fs::OpenOptions::new().create(true).append(true).open(&log_path) {
+        Ok(file) => {
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                let _ = file.set_permissions(std::fs::Permissions::from_mode(0o600));
+            }
+            let file_layer = tracing_subscriber::fmt::layer()
+                .with_writer(std::sync::Mutex::new(file))
+                .with_filter(tracing_subscriber::filter::LevelFilter::ERROR);
+            registry.with(file_layer).init();
+        }
+        Err(e) => {
+            registry.init();
+            tracing::warn!("could not open error log {}: {e}", log_path.display());
+        }
+    }
 }
 
 fn chrono_now() -> String {
@@ -1327,6 +1347,9 @@ struct InjectionTracker {
     pub ids: std::collections::HashSet<i64>,
 }
 
+/// Tracker files older than this are considered stale (new session).
+const TRACKER_TTL: std::time::Duration = std::time::Duration::from_secs(6 * 60 * 60);
+
 impl InjectionTracker {
     fn load(data_dir: &std::path::Path, scope: &str) -> Self {
         // Convert scope to a safe filename slug (replace '/' with '-', strip leading '-')
@@ -1340,13 +1363,24 @@ impl InjectionTracker {
 
         let mut ids = std::collections::HashSet::new();
         let path = data_dir.join(format!("injected-{slug}.ids"));
-        if let Ok(content) = std::fs::read_to_string(&path) {
-            for line in content.lines() {
-                if let Ok(id) = line.trim().parse::<i64>() {
-                    ids.insert(id);
+
+        // Only reuse the tracker if it was written within the session TTL.
+        // An older file means a new coding session — reset so injections are recorded afresh.
+        let is_fresh = std::fs::metadata(&path)
+            .and_then(|m| m.modified())
+            .map(|mtime| mtime.elapsed().unwrap_or(TRACKER_TTL) < TRACKER_TTL)
+            .unwrap_or(false);
+
+        if is_fresh {
+            if let Ok(content) = std::fs::read_to_string(&path) {
+                for line in content.lines() {
+                    if let Ok(id) = line.trim().parse::<i64>() {
+                        ids.insert(id);
+                    }
                 }
             }
         }
+
         Self { scope_slug: slug, ids }
     }
 

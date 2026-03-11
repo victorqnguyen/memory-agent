@@ -602,6 +602,7 @@ impl App {
 }
 
 const LIVE_REFRESH_INTERVAL: Duration = Duration::from_secs(2);
+const DATA_REFRESH_INTERVAL: Duration = Duration::from_secs(30);
 
 pub fn run(
     store: Store,
@@ -612,6 +613,7 @@ pub fn run(
     let mut terminal = ratatui::init();
     let mut app = App::new(store, data_dir, hooks_config, update_notice)?;
     let mut last_live_refresh = Instant::now();
+    let mut last_data_refresh = Instant::now();
 
     loop {
         terminal.draw(|f| views::render(f, &mut app))?;
@@ -622,6 +624,7 @@ pub fn run(
                     continue;
                 }
                 app.handle_key(key)?;
+                last_data_refresh = Instant::now();
             }
         }
 
@@ -629,6 +632,14 @@ pub fn run(
         if matches!(app.view, View::Live) && last_live_refresh.elapsed() >= LIVE_REFRESH_INTERVAL {
             app.load_live()?;
             last_live_refresh = Instant::now();
+        }
+
+        // Auto-refresh data tabs (Metrics, ScopeTree, Search) every 30s
+        if matches!(app.view, View::Metrics | View::ScopeTree | View::Search)
+            && last_data_refresh.elapsed() >= DATA_REFRESH_INTERVAL
+        {
+            app.refresh_current_view()?;
+            last_data_refresh = Instant::now();
         }
 
         if app.should_quit {
@@ -664,5 +675,11 @@ mod tests {
     #[test]
     fn live_refresh_interval_is_2s() {
         assert_eq!(LIVE_REFRESH_INTERVAL, Duration::from_secs(2));
+    }
+
+    /// DATA_REFRESH_INTERVAL constant is the expected 30 seconds.
+    #[test]
+    fn data_refresh_interval_is_30s() {
+        assert_eq!(DATA_REFRESH_INTERVAL, Duration::from_secs(30));
     }
 }
