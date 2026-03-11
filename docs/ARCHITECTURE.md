@@ -423,9 +423,6 @@ serde_json = "1"
 # Native binary (primary)
 cargo build --release                              # ~3MB binary
 
-# WASM module (embed in VS Code, browser IDEs)
-cargo build --release --target wasm32-wasip1        # ~1.5MB .wasm
-
 # Cross-compile (CI)
 cross build --release --target x86_64-unknown-linux-gnu
 cross build --release --target aarch64-apple-darwin

@@ -55,26 +55,8 @@ jobs:
           name: ${{ matrix.name }}
           path: ${{ matrix.name }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
 
-  build-wasm:
-    needs: [ci]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-wasip1
-      - name: Install wasm-bindgen-cli
-        run: cargo install wasm-bindgen-cli
-      - name: Build memory-wasm
-        run: cargo build --release -p memory-wasm --target wasm32-wasip1
-      - run: cp target/wasm32-wasip1/release/memory_wasm.wasm memory-wasm.wasm
-      - uses: actions/upload-artifact@v4
-        with:
-          name: memory-wasm
-          path: memory-wasm.wasm
-
   release:
-    needs: [build-native, build-wasm]
+    needs: [build-native]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -87,10 +69,10 @@ jobs:
             memory-agent-x86_64-darwin/memory-agent-x86_64-darwin
             memory-agent-aarch64-darwin/memory-agent-aarch64-darwin
             memory-agent-x86_64-windows/memory-agent-x86_64-windows.exe
-            memory-wasm/memory-wasm.wasm
 
   publish:
     needs: [release]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

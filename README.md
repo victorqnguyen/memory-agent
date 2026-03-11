@@ -35,7 +35,6 @@ The installer walks you through config, encryption, LLM setup (Ollama or skip), 
 - **Procedural learning** — skills system records what worked and what didn't, then retrieves those learnings before the next execution
 - **Hook integration** — 10 Claude Code hook scripts across 9 events auto-inject context on prompts, record file edits, extract learnings on compaction. TypeScript plugin for OpenCode with 5 event handlers.
 - **TUI dashboard** — browse memories, sessions, activity log, metrics, scopes, and hook config in your terminal. End active sessions, view maintenance status.
-- **WASM-compatible core** — `memory-core` compiles to `wasm32-wasip1`
 
 ## Supported Agents
 
@@ -154,13 +153,12 @@ memory-agent/
 ├── crates/
 │   ├── memory-core/     # sync lib — SQLCipher, FTS5, dedup, privacy, search
 │   ├── memory-agent/    # async bin — MCP server, CLI, hooks, LLM
-│   └── memory-wasm/     # WASM bindings
 ├── LICENSE
 ├── LICENSE-COMMERCIAL.md
 └── Cargo.toml           # workspace root
 ```
 
-- **memory-core** — synchronous, no async runtime, compiles to WASM. All storage, search, dedup, privacy, and encryption logic.
+- **memory-core** — synchronous, no async runtime. All storage, search, dedup, privacy, and encryption logic.
 - **memory-agent** — async MCP server, CLI, hook system, local LLM integration. Wraps core via `AsyncStore`.
 
 ## Requirements

@@ -119,14 +119,6 @@ See also: [AD-16 in ARCHITECTURE-DECISIONS.md](ARCHITECTURE-DECISIONS.md#ad-16-s
   - Don't observe/store content from files matching `.gitignore`
   - Rate-limit observation storage (max N observations per minute)
 
-### Stage 8: WASM Distribution
-
-- [ ] **WASM sandbox** — `memory-wasm` crate
-  - No filesystem access from WASM (enforced by runtime)
-  - No network access from WASM
-  - Memory limits enforced by WASM runtime
-  - Input validation same as native (shared core crate)
-
 ---
 
 ## Security Testing
