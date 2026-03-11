@@ -330,6 +330,54 @@ fn test_encrypt_cleans_up_stale_tmp_file() {
 }
 
 #[test]
+fn rekey_changes_passphrase() {
+    let (_dir, path) = tmp_db();
+    let passphrase_a = "passphrase-A";
+    let passphrase_b = "passphrase-B";
+
+    // Create and encrypt with passphrase A
+    {
+        let mut config = Config::default();
+        config.storage.encryption_enabled = true;
+        let store = Store::open(&path, config, Some(passphrase_a)).unwrap();
+        store
+            .save(SaveParams {
+                key: "rekey/test".into(),
+                value: "data that survives rekeying".into(),
+                scope: Some("/".into()),
+                ..Default::default()
+            })
+            .unwrap();
+    }
+
+    // Reopen with passphrase A and rekey to passphrase B
+    {
+        let mut config = Config::default();
+        config.storage.encryption_enabled = true;
+        let store = Store::open(&path, config, Some(passphrase_a)).unwrap();
+        store.rekey(passphrase_b).unwrap();
+    }
+
+    // Verify passphrase B works and data survived
+    {
+        let mut config = Config::default();
+        config.storage.encryption_enabled = true;
+        let store = Store::open(&path, config, Some(passphrase_b))
+            .expect("should open with new passphrase");
+        let results = store.search(search_query("survives")).unwrap();
+        assert_eq!(results.len(), 1, "data must survive rekey");
+    }
+
+    // Verify passphrase A no longer works
+    {
+        let mut config = Config::default();
+        config.storage.encryption_enabled = true;
+        let result = Store::open(&path, config, Some(passphrase_a));
+        assert!(result.is_err(), "old passphrase should no longer work");
+    }
+}
+
+#[test]
 fn test_encrypt_preserves_all_data() {
     // Thorough data integrity check: multiple memories, sessions, metrics
     let (_dir, path) = tmp_db();

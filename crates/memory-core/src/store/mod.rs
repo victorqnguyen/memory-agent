@@ -151,6 +151,22 @@ impl Store {
         Ok(())
     }
 
+    /// Rotate the encryption passphrase in-place using SQLCipher's PRAGMA rekey.
+    /// No intermediate plaintext file is created — the re-encryption is atomic.
+    #[cfg(feature = "encryption")]
+    pub fn rekey(&self, new_passphrase: &str) -> crate::Result<()> {
+        self.conn
+            .pragma_update(None, "rekey", new_passphrase)
+            .map_err(|e| Error::Encryption(format!("rekey failed: {}", e)))?;
+        // Verify the new passphrase works by reading user_version
+        self.conn
+            .query_row("PRAGMA user_version", [], |r| r.get::<_, i32>(0))
+            .map_err(|_| {
+                Error::Encryption("rekey verification failed — database may be in an inconsistent state".into())
+            })?;
+        Ok(())
+    }
+
     /// Decrypt an encrypted database back to plaintext.
     /// Uses backup-before-rename: original DB is preserved until verification passes.
     #[cfg(feature = "encryption")]

@@ -228,6 +228,9 @@ enum EncryptionAction {
     Disable,
     /// Show encryption status
     Status,
+    /// Rotate the encryption passphrase in-place. Generates a new passphrase and
+    /// updates the system keychain.
+    ChangePassphrase,
 }
 
 #[tokio::main]
@@ -251,11 +254,12 @@ async fn main() -> anyhow::Result<()> {
     match cli {
         Cli::Mcp => {
             init_tracing(&data_dir);
+            let max_value_length = config.validation.max_value_length;
             let store = open_store(&data_dir, config)?;
             let async_store = AsyncStore::new(store);
             let llm_tier = llm::detect_tier(&llm_config).await;
             tracing::info!("LLM tier: {}", llm_tier.tier_name());
-            mcp::run_mcp_server(async_store, llm_tier).await
+            mcp::run_mcp_server(async_store, llm_tier, max_value_length).await
         }
         Cli::Init => {
             config_loader::create_default_config(&data_dir)?;
@@ -347,6 +351,29 @@ async fn main() -> anyhow::Result<()> {
                         } else if !config_enabled && db_encrypted {
                             println!("\nWARNING: config says disabled but DB is encrypted");
                         }
+                        Ok(())
+                    }
+                    EncryptionAction::ChangePassphrase => {
+                        if !config.storage.encryption_enabled {
+                            anyhow::bail!("encryption is not enabled; run `memory-agent config encryption enable` first");
+                        }
+                        if !db_path.exists() {
+                            anyhow::bail!("database not found at {}", db_path.display());
+                        }
+                        // Retrieve and verify current passphrase
+                        let current = config_loader::retrieve_passphrase()?
+                            .ok_or_else(|| anyhow::anyhow!("no passphrase found; set MEMORY_AGENT_PASSPHRASE or store in keychain"))?;
+                        let mut enc_config = config.clone();
+                        enc_config.storage.encryption_enabled = true;
+                        let store = Store::open(db_path_str, enc_config, Some(&current))?;
+                        // Generate new passphrase and rekey in-place
+                        let new_passphrase = config_loader::generate_passphrase();
+                        store.rekey(&new_passphrase)?;
+                        drop(store);
+                        // Update keychain
+                        config_loader::store_passphrase(&new_passphrase)?;
+                        println!("Passphrase rotated successfully. New passphrase stored in system keychain.");
+                        println!("To also set via env: export MEMORY_AGENT_PASSPHRASE='{new_passphrase}'");
                         Ok(())
                     }
                 }
